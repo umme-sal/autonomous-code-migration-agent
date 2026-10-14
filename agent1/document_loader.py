@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from pypdf import PdfReader
 from docx import Document
 
@@ -6,15 +7,15 @@ from docx import Document
 def load_pdf(file_path: str) -> str:
     reader = PdfReader(file_path)
 
-    text = []
+    pages = []
 
     for page in reader.pages:
-        page_text = page.extract_text()
+        text = page.extract_text()
 
-        if page_text:
-            text.append(page_text)
+        if text:
+            pages.append(text)
 
-    return "\n".join(text)
+    return "\n".join(pages)
 
 
 def load_docx(file_path: str) -> str:
@@ -29,22 +30,30 @@ def load_docx(file_path: str) -> str:
     return "\n".join(paragraphs)
 
 
+def load_txt(file_path: str) -> str:
+    return Path(file_path).read_text(encoding="utf-8")
+
+
 def load_document(file_path: str) -> str:
+
     path = Path(file_path)
 
     if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+        raise FileNotFoundError(
+            f"Document not found: {file_path}"
+        )
 
-    if path.suffix.lower() == ".pdf":
+    extension = path.suffix.lower()
+
+    if extension == ".pdf":
         return load_pdf(file_path)
 
-    elif path.suffix.lower() == ".docx":
+    if extension == ".docx":
         return load_docx(file_path)
 
-    elif path.suffix.lower() == ".txt":
-        return path.read_text(encoding="utf-8")
+    if extension == ".txt":
+        return load_txt(file_path)
 
-    else:
-        raise ValueError(
-            f"Unsupported document type: {path.suffix}"
-        )
+    raise ValueError(
+        f"Unsupported document type: {extension}"
+    )
