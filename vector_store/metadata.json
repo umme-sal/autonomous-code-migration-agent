@@ -1,0 +1,32 @@
+[
+  {
+    "chunk_id": 0,
+    "text": "LangChain Middleware Documentation\nClean, study-friendly version of the supplied documentation.\nDocumentation Index\nFetch the complete documentation index at: https://docs.langchain.com/llms.txt\nUse this file to discover all available pages before exploring further.\nMiddleware overview\nControl and customize agent execution at every step.\nMiddleware provides a way to more tightly control what happens inside the agent. Middleware is useful\nfor:\n  Tracking agent behavior with logging, analytics, and debugging.\n  Transforming prompts, tool selection, and output formatting.\n  Adding retries, fallbacks, and early termination logic.\n  Applying rate limits, guardrails, and PII detection.\n Add middleware by passing it to create_agent.\nCode: Adding middleware",
+    "source": "langChain_readable.pdf"
+  },
+  {
+    "chunk_id": 1,
+    "text": " Applying rate limits, guardrails, and PII detection.\n Add middleware by passing it to create_agent.\nCode: Adding middleware\n from langchain.agents import create_agent\nfrom langchain.agents.middleware import SummarizationMiddleware, HumanInTheLoopMiddleware\nagent = create_agent(\n    model=\"gpt-5.5\",\n    tools=[...],\n    middleware=[\n        SummarizationMiddleware(...),\n        HumanInTheLoopMiddleware(...)\n    ],\n)\nThe agent loop\nThe core agent loop involves calling a model, letting it choose tools to execute, and then finishing when it\ncalls no more tools.\nMiddleware exposes hooks before and after each of those steps.\nUse middleware inside a LangGraph workflow\nMiddleware is not a separate runtime: hooks run inside the compiled LangGraph that create_agent\nreturns.",
+    "source": "langChain_readable.pdf"
+  },
+  {
+    "chunk_id": 2,
+    "text": "Middleware is not a separate runtime: hooks run inside the compiled LangGraph that create_agent\nreturns.\nYou can drop the whole agent (middleware and all) into a larger StateGraph as a node or subgraph, and\nevery middleware hook continues to run.\nReach for this pattern when the surrounding topology is more than a standard \"loop until done\":\nclassifying input before routing to one of several agents, fanning out work in parallel, or stitching agent\ncalls together with deterministic steps.",
+    "source": "langChain_readable.pdf"
+  },
+  {
+    "chunk_id": 3,
+    "text": "HumanInTheLoopMiddleware matches against each tool's .name.\n@tool-decorated functions take their name from the function, so the key below is \"send_email\".\nCode: Middleware inside a LangGraph workflow\n from langchain.agents import AgentState, create_agent\nfrom langchain.agents.middleware import HumanInTheLoopMiddleware\nfrom langgraph.graph import START, StateGraph\n# Assumes read_email, send_email, classify_node, and route are defined elsewhere.\nemail_agent = create_agent(\n    model=\"claude-sonnet-4-6\",\n    tools=[read_email, send_email],\n    middleware=[HumanInTheLoopMiddleware(interrupt_on={\"send_email\": True})],\n)\ngraph = (\n    StateGraph(AgentState)\n    .add_node(\"classify\", classify_node)\n    .add_node(\"email_agent\", email_agent)\n    .add_edge(START, \"classify\")\n    .add_conditional_edges(\"classify\", route)\n    .compile()\n)\nWhat travels with the agent\nThe HITL interrupt, summarization, PII redaction, retries, and any custom hooks all travel with the agent\nnode.",
+    "source": "langChain_readable.pdf"
+  },
+  {
+    "chunk_id": 4,
+    "text": "The HITL interrupt, summarization, PII redaction, retries, and any custom hooks all travel with the agent\nnode.\nSee \"Use subgraphs\" for the full set of composition patterns, including subgraph checkpointer scoping\n(per-invocation versus per-thread).\nAdditional resources\n  Built-in middleware — Explore built-in middleware for common use cases.\n  Custom middleware — Build your own middleware with hooks and decorators.\n  Middleware API reference — Complete API reference for middleware.\n  Middleware integrations — Provider-specific middleware for Anthropic, AWS, OpenAI, and more.\n  Testing agents — Test your agents with LangSmith.\n Resources: https://reference.langchain.com/python/langchain/middleware/\nSource links",
+    "source": "langChain_readable.pdf"
+  },
+  {
+    "chunk_id": 5,
+    "text": " Testing agents — Test your agents with LangSmith.\n Resources: https://reference.langchain.com/python/langchain/middleware/\nSource links\nConnect these docs to your agent of choice via MCP for real-time answers.\nEdit this page on GitHub:\nhttps://github.com/langchain-ai/docs/edit/main/src/oss/langchain/middleware/overview.mdx\nFile an issue: https://github.com/langchain-ai/docs/issues/new/choose",
+    "source": "langChain_readable.pdf"
+  }
+]
