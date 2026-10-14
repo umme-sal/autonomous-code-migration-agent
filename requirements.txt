@@ -1,0 +1,6 @@
+sentence-transformers
+faiss-cpu
+pypdf
+python-docx
+langchain-text-splitters
+numpy

@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ML / vector database
+*.faiss
+*.index
+
+# Generated files
+outputs/
+logs/
+
+# Model/cache directories
+models/
+.cache/
