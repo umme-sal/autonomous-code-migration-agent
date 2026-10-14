@@ -28,5 +28,85 @@
     "chunk_id": 5,
     "text": " Testing agents — Test your agents with LangSmith.\n Resources: https://reference.langchain.com/python/langchain/middleware/\nSource links\nConnect these docs to your agent of choice via MCP for real-time answers.\nEdit this page on GitHub:\nhttps://github.com/langchain-ai/docs/edit/main/src/oss/langchain/middleware/overview.mdx\nFile an issue: https://github.com/langchain-ai/docs/issues/new/choose",
     "source": "langChain_readable.pdf"
+  },
+  {
+    "chunk_id": 6,
+    "text": "Legacy Python Application\n Migration Knowledge & System Specification Document\n1. Document Purpose\nThis document describes a legacy Python application that manages users, orders, customer information,\nconfiguration, and report generation. It is intentionally written as an older technical specification so that an\nautomated code migration agent can analyze the document and identify modernization requirements.\nThe migration system should retrieve relevant sections when migrating individual modules. Business rules\nand observable behavior must be preserved even when the implementation is modernized.\n2. Application Overview\nThe application is a small command-line business management system developed using Python. It",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 7,
+    "text": "2. Application Overview\nThe application is a small command-line business management system developed using Python. It\ncontains a user management module, a local JSON-based persistence layer, an order processing module,\nand a configuration module.\nThe original application was developed using older Python practices. Several parts of the system use\nexplicit file open and close operations, broad exception handling, manual loops, mutable data structures,\nand procedural helper functions.\n3. User Management Module\nThe User component represents a customer of the application. Every user contains a unique identifier, a\nname, an email address, and a creation timestamp.\nUser attributes:",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 8,
+    "text": "name, an email address, and a creation timestamp.\nUser attributes:\n user_id — unique customer identifier\n name — customer's display name\n email — customer's email address\n created_at — timestamp indicating when the object was created\nThe legacy implementation exposes individual getter methods such as get_id(), get_name(), and\nget_email(). The print_user() operation writes a formatted user record to the console.\n4. User Repository\nThe UserRepository component provides persistent storage for users. Instead of a relational database, the\nlegacy application stores user records in a JSON file named users.json.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 9,
+    "text": "legacy application stores user records in a JSON file named users.json.\nWhen a new user is saved, the repository checks whether the JSON file exists. If it exists, the existing list\nof users is loaded. The new user's information is appended to the list and the complete list is written back\nto the file.\nThe legacy implementation manually opens files and closes them in finally blocks. A migration should\nconsider replacing this pattern with Python context managers.\nThe find_user operation searches for a user by identifier. If the JSON file does not exist, the operation",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 10,
+    "text": "The find_user operation searches for a user by identifier. If the JSON file does not exist, the operation\nreturns no result. If a matching identifier is found, a User object is reconstructed and returned.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 11,
+    "text": "5. User Service\nUserService contains application-level operations involving users. It receives a repository object and uses\nthat repository to retrieve users.\nThe get_user operation requests a user from the repository. If no user is found, the service prints 'User not\nfound' and returns no result. If a user exists, the service prints the user information and returns the User\nobject.\nThe find_all_users operation receives a collection of user identifiers. It checks each identifier and adds\nsuccessfully retrieved users to a result collection. Unknown identifiers are skipped rather than causing the\nentire operation to fail.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 12,
+    "text": "6. Order Management Module\nThe Order component represents a customer's purchase. An order contains an order identifier, a customer\nidentifier, a list of purchased items, and a numeric total.\nOrder behavior:\n A newly created order has an empty item list.\n The initial total is zero.\n Adding an item appends the item description to the item list.\n The item's price is added to the current total.\n The order can print its identifier, items, and total.\nThe migration must preserve the total calculation exactly. For example, an order containing items priced at",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 13,
+    "text": "The migration must preserve the total calculation exactly. For example, an order containing items priced at\n2500, 1000, and 500 must have an original total of 4000.\n7. Discount Rules\nThe legacy application calculates discounts using a separate procedural function called\ncalculate_discount.\nPremium customers receive a 20 percent discount. Regular customers receive a 10 percent discount. Any\nother customer type receives no discount.\nThe discount is calculated from the original order total. The final total is calculated by subtracting the\ndiscount from the original total.\n8. Order Summary\nThe generate_order_summary operation creates a dictionary containing the order identifier, customer",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 14,
+    "text": "discount from the original total.\n8. Order Summary\nThe generate_order_summary operation creates a dictionary containing the order identifier, customer\nidentifier, items, original total, discount amount, and final total.\nThe summary is later serialized into a JSON file. The migration may improve the representation of this\ndata, but the same information must remain available.\n9. Configuration Module\nThe configuration component stores application-wide constants. The legacy system defines the application\nname as LegacyMigrationApp, the environment as production, and the maximum retry count as 3.\nA print_config operation displays these values. Configuration values should not be accidentally changed\nduring migration.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 15,
+    "text": "A print_config operation displays these values. Configuration values should not be accidentally changed\nduring migration.\n10. Main Application Workflow\nThe main workflow creates a repository connected to users.json and then creates a UserService using that\nrepository.\nTwo users are created and stored: user 101 with the name Alice and user 102 with the name Bob. The\napplication then searches for users 101, 102, and 999. The unknown user 999 must be ignored.\nAn order with identifier 5001 is created for customer 101. Three products are added: Keyboard priced at",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 16,
+    "text": "An order with identifier 5001 is created for customer 101. Three products are added: Keyboard priced at\n2500, Mouse priced at 1000, and USB Cable priced at 500. The original order total is therefore 4000.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 17,
+    "text": "The customer is treated as a premium customer, so a 20 percent discount is applied. The discount is 800\nand the final total is 3200.\nThe resulting order summary is written to order_summary.json and the application configuration is printed.\n11. Legacy Implementation Characteristics\nThe following characteristics are intentionally present in the legacy design:\n1. Explicit file opening and closing.\n2. Broad Exception handling in service and persistence code.\n3. Manual list construction and indexed loops.\n4. Getter methods for simple object attributes.\n5. Mutable dictionaries used as data-transfer objects.\n6. String concatenation for formatted output.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 18,
+    "text": "4. Getter methods for simple object attributes.\n5. Mutable dictionaries used as data-transfer objects.\n6. String concatenation for formatted output.\n7. Procedural functions mixed with object-oriented components.\n8. Local JSON files used as a persistence mechanism.\n9. Minimal type information.\n10. Configuration values stored as class constants.",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 19,
+    "text": "12. Migration Requirements\nThe migration agent should modernize the implementation while preserving behavior. Potential\nimprovements include Python type hints, dataclasses for simple data models, pathlib for filesystem\noperations, context managers for file handling, f-strings for formatting, clearer exception handling, and\nmore readable collection operations.\nThe agent should not change business rules merely because the implementation is being modernized. In\nparticular, the premium discount must remain 20 percent, the regular discount must remain 10 percent,\nand unknown customer types must receive no discount.\n13. Retrieval Test Scenarios",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 20,
+    "text": "and unknown customer types must receive no discount.\n13. Retrieval Test Scenarios\nThis document can be used to test semantic retrieval in the migration system. Useful queries include the\nfollowing:\nQuery\nExpected relevant information\nHow are users stored?\nUser Repository / JSON persistence\nHow is a user retrieved?\nfind_user behavior\nWhat happens when a user does\nnot exist?\nUserService behavior\nWhat are the order calculation\nrules?\nOrder Management\nHow is the premium discount\ncalculated?\nDiscount Rules\nWhat is the expected final total for\norder 5001?\nMain workflow / discount rules\nHow are files handled in the\nlegacy system?",
+    "source": "legacy_python.pdf"
+  },
+  {
+    "chunk_id": 21,
+    "text": "order 5001?\nMain workflow / discount rules\nHow are files handled in the\nlegacy system?\nLegacy implementation characteristics\nWhat should be modernized?\nMigration requirements\nWhich business rules must be\npreserved?\nMigration requirements / Discount Rules\n14. Expected Migration Outcome\nA successful migration should produce a cleaner, maintainable Python implementation while retaining the\noriginal architecture's core responsibilities and all important business behavior. The migration agent\nshould be able to retrieve the relevant documentation sections rather than relying only on adjacent text.\nThis document is intentionally suitable for testing chunking, embedding generation, vector search,\nsemantic retrieval, and context-aware migration.",
+    "source": "legacy_python.pdf"
   }
 ]

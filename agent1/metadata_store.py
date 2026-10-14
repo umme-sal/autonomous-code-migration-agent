@@ -13,7 +13,6 @@ class MetadataStore:
         self,
         chunks: list[DocumentChunk]
     ):
-
         for chunk in chunks:
             self.chunks[chunk.chunk_id] = chunk
 
@@ -42,7 +41,12 @@ class MetadataStore:
             for chunk in self.chunks.values()
         ]
 
-        with open(path, "w", encoding="utf-8") as file:
+        with open(
+            path,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
             json.dump(
                 data,
                 file,
@@ -68,3 +72,10 @@ class MetadataStore:
             )
             for item in data
         }
+
+    def next_chunk_id(self) -> int:
+
+        if not self.chunks:
+            return 0
+
+        return max(self.chunks.keys()) + 1

@@ -7,7 +7,8 @@ def chunk_text(
     text: str,
     source: str,
     chunk_size: int = 100,
-    chunk_overlap: int = 20
+    chunk_overlap: int = 20,
+    start_id: int = 0
 ) -> list[DocumentChunk]:
 
     splitter = RecursiveCharacterTextSplitter(
@@ -27,7 +28,7 @@ def chunk_text(
 
     return [
         DocumentChunk(
-            chunk_id=i,
+            chunk_id=start_id + i,
             text=chunk,
             source=source
         )

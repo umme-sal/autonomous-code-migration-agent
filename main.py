@@ -1,31 +1,36 @@
-from agent1.agent import MigrationKnowledgeAgent
+from agent2.agent import CodeMigrationAgent
 
 
-agent = MigrationKnowledgeAgent()
+source_code = """
+from old_library import OldClass
 
 
-query = "How does middleware control agent execution?"
+class MyClass:
 
-results = agent.search(query)
+    def hello(self):
+
+        obj = OldClass()
+
+        return obj
 
 
-print("\n" + "=" * 60)
-print("MIGRATION KNOWLEDGE")
-print("=" * 60)
+def create_object():
+
+    return OldClass()
+"""
 
 
-if not results:
+agent = CodeMigrationAgent()
 
-    print("No relevant information found.")
+migration_maps = agent.generate_migration_map(
+    source_code
+)
 
-else:
 
-    for rank, result in enumerate(results, start=1):
+print("\n" + "=" * 70)
+print("MIGRATION MAP")
+print("=" * 70)
 
-        print(f"\nRank {rank}")
-        print(f"Score: {result['score']:.4f}")
-        print(f"Chunk ID: {result['chunk_id']}")
-        print(f"Source: {result['source']}")
+for migration_map in migration_maps:
 
-        print("\nText:")
-        print(result["text"])
+    print(migration_map)
