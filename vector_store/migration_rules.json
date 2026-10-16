@@ -1,0 +1,74 @@
+{
+    "rules": [
+        {
+            "type": "symbol",
+            "source": "OpenAI",
+            "target": "OpenAI",
+            "source_module": "langchain.llms",
+            "target_module": "langchain_openai"
+        },
+        {
+            "type": "symbol",
+            "source": "ChatOpenAI",
+            "target": "ChatOpenAI",
+            "source_module": "langchain.chat_models",
+            "target_module": "langchain_openai"
+        },
+        {
+            "type": "symbol",
+            "source": "OpenAIEmbeddings",
+            "target": "OpenAIEmbeddings",
+            "source_module": "langchain.embeddings",
+            "target_module": "langchain_openai"
+        },
+        {
+            "type": "symbol",
+            "source": "Chroma",
+            "target": "Chroma",
+            "source_module": "langchain.vectorstores",
+            "target_module": "langchain_chroma"
+        },
+        {
+            "type": "symbol",
+            "source": "FAISS",
+            "target": "FAISS",
+            "source_module": "langchain.vectorstores",
+            "target_module": "langchain_community.vectorstores"
+        },
+        {
+            "type": "symbol",
+            "source": "HuggingFaceEmbeddings",
+            "target": "HuggingFaceEmbeddings",
+            "source_module": "langchain.embeddings",
+            "target_module": "langchain_community.embeddings"
+        },
+        {
+            "type": "symbol",
+            "source": "PyPDFLoader",
+            "target": "PyPDFLoader",
+            "source_module": "langchain.document_loaders",
+            "target_module": "langchain_community.document_loaders"
+        },
+        {
+            "type": "symbol",
+            "source": "RecursiveCharacterTextSplitter",
+            "target": "RecursiveCharacterTextSplitter",
+            "source_module": "langchain.text_splitter",
+            "target_module": "langchain_text_splitters"
+        },
+        {
+            "type": "symbol",
+            "source": "PromptTemplate",
+            "target": "PromptTemplate",
+            "source_module": "langchain.prompts",
+            "target_module": "langchain_core.prompts"
+        },
+        {
+            "type": "symbol",
+            "source": "StrOutputParser",
+            "target": "StrOutputParser",
+            "source_module": "langchain.output_parsers",
+            "target_module": "langchain_core.output_parsers"
+        }
+    ]
+}

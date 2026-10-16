@@ -2,6 +2,8 @@ from agent2.code_parser import CodeParser
 from agent2.code_analyzer import CodeAnalyzer
 from agent2.knowledge_retriever import MigrationKnowledgeRetriever
 from agent2.migration_advisor import MigrationAdvisor
+from agent2.migration_engine import MigrationEngine
+from agent1.rule_store import RuleStore
 
 
 class CodeMigrationAgent:
@@ -16,15 +18,42 @@ class CodeMigrationAgent:
 
         self.migration_advisor = MigrationAdvisor()
 
+        self.migration_engine = MigrationEngine()
+
+        # Load migration rules extracted from documentation
+        self.rule_store = RuleStore()
+
+        self.rule_store.load(
+            "vector_store/migration_rules.json"
+        )
+
+        self.migration_rules = (
+            self.rule_store.get_rules()
+        )
+
+        print(
+            f"Loaded {len(self.migration_rules)} migration rules."
+        )
+
+    # --------------------------------------------------
+    # Step 1: Analyze source code
+    # --------------------------------------------------
+
     def analyze(self, source_code: str):
 
         tree = self.parser.parse(source_code)
 
-        analyzer = CodeAnalyzer()
+        analyzer = CodeAnalyzer(
+            migration_rules=self.migration_rules
+        )
 
         tree.visit(analyzer)
 
         return analyzer
+
+    # --------------------------------------------------
+    # Step 2: Retrieve knowledge from Agent 1
+    # --------------------------------------------------
 
     def retrieve_knowledge(self, source_code: str):
 
@@ -36,7 +65,9 @@ class CodeMigrationAgent:
 
             results = (
                 self.knowledge_retriever
-                .retrieve_for_candidate(candidate)
+                .retrieve_for_candidate(
+                    candidate
+                )
             )
 
             knowledge.append({
@@ -46,7 +77,11 @@ class CodeMigrationAgent:
 
         return knowledge
 
-    def generate_migration_map(
+    # --------------------------------------------------
+    # Step 3: Generate migration maps using LLM
+    # --------------------------------------------------
+
+    def generate_migration_maps(
         self,
         source_code: str
     ):
@@ -60,12 +95,15 @@ class CodeMigrationAgent:
         for item in knowledge:
 
             candidate = item["candidate"]
+
+            if candidate["type"] != "import":
+                continue
             results = item["results"]
 
             if not results:
                 continue
 
-            migration_map = (
+            result = (
                 self.migration_advisor
                 .create_migration_map(
                     source_code=source_code,
@@ -74,8 +112,45 @@ class CodeMigrationAgent:
                 )
             )
 
-            migration_maps.append(
-                migration_map
-            )
+            print("\n" + "=" * 70)
+            print("MIGRATION ADVISOR")
+            print("=" * 70)
+
+            print(result)
+
+            if result.get("migration_required"):
+
+                migration_maps.append(
+                    result["migration_map"]
+                )
 
         return migration_maps
+
+    # --------------------------------------------------
+    # Step 4: Apply migrations
+    # --------------------------------------------------
+
+    def migrate_code(
+        self,
+        source_code: str
+    ):
+
+        migration_maps = (
+            self.generate_migration_maps(
+                source_code
+            )
+        )
+
+        migrated_code = source_code
+
+        for migration_map in migration_maps:
+
+            migrated_code = (
+                self.migration_engine
+                .migrate(
+                    migrated_code,
+                    migration_map
+                )
+            )
+
+        return migrated_code

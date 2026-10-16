@@ -1,98 +1,162 @@
-import json
-import os
-
-from dotenv import load_dotenv
-from groq import Groq
+import libcst as cst
 
 
-load_dotenv()
+class ImportMigrationTransformer(cst.CSTTransformer):
+
+    def __init__(self, migration_map: dict):
+        self.migration_map = migration_map
+        self.renames = {}
+
+    def leave_ImportFrom(
+        self,
+        original_node: cst.ImportFrom,
+        updated_node: cst.ImportFrom
+    ):
+
+        # Get the complete module name.
+        module_name = self._get_module_name(
+            original_node.module
+        )
+
+        if module_name is None:
+            return updated_node
+
+        # Check whether this module has a migration rule.
+        if module_name not in self.migration_map:
+            return updated_node
+
+        migration = self.migration_map[module_name]
+
+        new_module = migration["module"]
+
+        new_names = []
+
+        for name in updated_node.names:
+
+            if isinstance(name, cst.ImportAlias):
+
+                old_name = self._get_name(
+                    name.name
+                )
+
+                new_name = migration.get(
+                    "names",
+                    {}
+                ).get(
+                    old_name,
+                    old_name
+                )
+
+                if old_name != new_name:
+                    self.renames[old_name] = new_name
+
+                new_names.append(
+                    name.with_changes(
+                        name=cst.parse_expression(
+                            new_name
+                        )
+                    )
+                )
+
+            else:
+                new_names.append(name)
+
+        return updated_node.with_changes(
+            module=cst.parse_expression(
+                new_module
+            ),
+            names=new_names
+        )
+
+    def _get_module_name(self, node):
+
+        if node is None:
+            return None
+
+        if isinstance(node, cst.Name):
+            return node.value
+
+        if isinstance(node, cst.Attribute):
+            left = self._get_module_name(node.value)
+
+            if left is None:
+                return None
+
+            return f"{left}.{node.attr.value}"
+
+        return None
+
+    def _get_name(self, node):
+
+        if isinstance(node, cst.Name):
+            return node.value
+
+        if isinstance(node, cst.Attribute):
+            return self._get_module_name(node)
+
+        return ""
 
 
-class MigrationAdvisor:
+class ReferenceMigrationTransformer(cst.CSTTransformer):
 
-    def __init__(self):
+    def __init__(self, renames: dict):
+        self.renames = renames
 
-        api_key = os.getenv("GROQ_API_KEY")
+    def leave_Name(
+        self,
+        original_node: cst.Name,
+        updated_node: cst.Name
+    ):
 
-        if not api_key:
-            raise ValueError(
-                "GROQ_API_KEY is not set."
+        if original_node.value in self.renames:
+
+            return updated_node.with_changes(
+                value=self.renames[
+                    original_node.value
+                ]
             )
 
-        self.client = Groq(
-            api_key=api_key
-        )
+        return updated_node
 
-        self.model = "llama-3.3-70b-versatile"
 
-    def create_migration_map(
+class MigrationEngine:
+
+    def migrate(
         self,
         source_code: str,
-        candidate: dict,
-        documentation: list[dict]
-    ) -> dict:
+        migration_map: dict
+    ) -> str:
 
-        documentation_text = "\n\n".join(
-            result["text"]
-            for result in documentation
+        tree = cst.parse_module(
+            source_code
         )
 
-        prompt = f"""
-You are a Python code migration expert.
+        # -----------------------------------------
+        # Step 1: Migrate imports
+        # -----------------------------------------
 
-Analyze the source code and the retrieved migration documentation.
-
-SOURCE CODE:
-{source_code}
-
-MIGRATION CANDIDATE:
-{candidate["code"]}
-
-RETRIEVED DOCUMENTATION:
-{documentation_text}
-
-Your task is to determine whether the migration candidate
-requires a code transformation.
-
-Return ONLY valid JSON.
-
-The JSON must have this structure:
-
-{{
-    "migration_required": true,
-    "migration_map": {{
-        "old_module": {{
-            "module": "new_module",
-            "names": {{
-                "OldName": "NewName"
-            }}
-        }}
-    }}
-}}
-
-If the documentation does not provide enough information
-to determine a migration, return:
-
-{{
-    "migration_required": false,
-    "migration_map": {{}}
-}}
-
-Do not invent migration rules that are not supported
-by the documentation.
-"""
-
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0
+        import_transformer = (
+            ImportMigrationTransformer(
+                migration_map
+            )
         )
 
-        content = response.choices[0].message.content
+        tree = tree.visit(
+            import_transformer
+        )
 
-        return json.loads(content)
+        # -----------------------------------------
+        # Step 2: Migrate references
+        # -----------------------------------------
+
+        reference_transformer = (
+            ReferenceMigrationTransformer(
+                import_transformer.renames
+            )
+        )
+
+        tree = tree.visit(
+            reference_transformer
+        )
+
+        return tree.code
