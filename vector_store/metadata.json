@@ -38,5 +38,45 @@
     "chunk_id": 7,
     "text": " A CST node becomes a migration candidate when it matches an extracted rule.\n Use semantic retrieval to obtain supporting documentation for a candidate.\n Use the LLM to reason about the exact transformation, then apply the approved transformation with LibCST.\n Preserve program behavior, comments, and unrelated identifiers whenever possible.",
     "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 8,
+    "text": "LangChain & LangGraph Migration Guide\nMigration knowledge document for testing an autonomous Python code migration agent.\nPurpose\nThis document contains explicit migration rules. A migration agent should extract these rules from the\ndocumentation, identify matching constructs in Python source code, retrieve supporting documentation, and\napply transformations without inventing unsupported rules.\nRule 1 — OpenAI LLM import\nLegacy:\n from langchain.llms import OpenAI\nModern:\n from langchain_openai import OpenAI\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 2 — ChatOpenAI import\nLegacy:\n from langchain.chat_models import ChatOpenAI\nModern:\n from langchain_openai import ChatOpenAI",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 9,
+    "text": "Rule 2 — ChatOpenAI import\nLegacy:\n from langchain.chat_models import ChatOpenAI\nModern:\n from langchain_openai import ChatOpenAI\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 3 — OpenAI embeddings\nLegacy:\n from langchain.embeddings import OpenAIEmbeddings\nModern:\n from langchain_openai import OpenAIEmbeddings\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 4 — Chroma integration\nLegacy:\n from langchain.vectorstores import Chroma\nModern:\n from langchain_chroma import Chroma\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 5 — FAISS integration\nLegacy:\n from langchain.vectorstores import FAISS",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 10,
+    "text": "Modern:\n from langchain_community.vectorstores import FAISS\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 6 — Hugging Face embeddings\nLegacy:\n from langchain.embeddings import HuggingFaceEmbeddings\nModern:\n from langchain_community.embeddings import HuggingFaceEmbeddings\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 7 — Document loaders\nLegacy:\n from langchain.document_loaders import PyPDFLoader\nModern:\n from langchain_community.document_loaders import PyPDFLoader\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 8 — Text splitters\nLegacy:\n from langchain.text_splitter import RecursiveCharacterTextSplitter\nModern:\n from langchain_text_splitters import RecursiveCharacterTextSplitter",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 11,
+    "text": "Rule 8 — Text splitters\nLegacy:\n from langchain.text_splitter import RecursiveCharacterTextSplitter\nModern:\n from langchain_text_splitters import RecursiveCharacterTextSplitter\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 9 — Prompt templates\nLegacy:\n from langchain.prompts import PromptTemplate\nModern:\n from langchain_core.prompts import PromptTemplate\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 10 — Output parsers\nLegacy:\n from langchain.output_parsers import StrOutputParser\nModern:\n from langchain_core.output_parsers import StrOutputParser\nMigration note: Apply this rule only when the source construct matches the documented legacy form.",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 12,
+    "text": "Rule 11 — LLM chains\nLegacy:\n from langchain.chains import LLMChain\nModern:\n Use an LCEL RunnableSequence pipeline instead of the legacy LLMChain abstraction.\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 12 — Agent initialization\nLegacy:\n from langchain.agents import initialize_agent\nModern:\n Use create_agent from langchain.agents for the current agent API.\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 13 — LangGraph ReAct agent\nLegacy:\n from langgraph.prebuilt import create_react_agent\nModern:\n Use the current LangChain/LangGraph agent API; do not introduce new code using the\ndeprecated prebuilt helper.",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 13,
+    "text": "Modern:\n Use the current LangChain/LangGraph agent API; do not introduce new code using the\ndeprecated prebuilt helper.\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 14 — LangGraph StateGraph import\nLegacy:\n from langgraph.graph import StateGraph\nModern:\n from langgraph.graph import StateGraph\nMigration note: Apply this rule only when the source construct matches the documented legacy form.\nRule 15 — LangGraph START/END\nLegacy:\n from langgraph.graph import START, END\nModern:\n from langgraph.graph import START, END\nMigration note: Apply this rule only when the source construct matches the documented legacy form.",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 14,
+    "text": "Example Combined Migration\nLegacy code:\n from langchain.chat_models import ChatOpenAI\nfrom langchain.embeddings import OpenAIEmbeddings\nfrom langchain.vectorstores import FAISS\nfrom langchain.text_splitter import RecursiveCharacterTextSplitter\nllm = ChatOpenAI()\nembeddings = OpenAIEmbeddings()\nvectorstore = FAISS.from_documents([], embeddings)\nsplitter = RecursiveCharacterTextSplitter(chunk_size=500)\nExpected migrated imports:\n from langchain_openai import ChatOpenAI, OpenAIEmbeddings\nfrom langchain_community.vectorstores import FAISS\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nAgent Behavior Requirements\n Extract only migration rules explicitly supported by this document.\n Do not infer or invent a replacement when the document does not provide one.\n A CST node becomes a migration candidate when it matches an extracted rule.",
+    "source": "langchain_langgraph_migration_guide.pdf"
+  },
+  {
+    "chunk_id": 15,
+    "text": " A CST node becomes a migration candidate when it matches an extracted rule.\n Use semantic retrieval to obtain supporting documentation for a candidate.\n Use the LLM to reason about the exact transformation, then apply the approved transformation with LibCST.\n Preserve program behavior, comments, and unrelated identifiers whenever possible.",
+    "source": "langchain_langgraph_migration_guide.pdf"
   }
 ]

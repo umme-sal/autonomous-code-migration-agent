@@ -1,3 +1,4 @@
+
 from pathlib import Path
 
 from agent1.embeddings import EmbeddingModel
@@ -6,6 +7,9 @@ from agent1.retriever import Retriever
 from agent1.vector_store import VectorStore
 from agent1.document_loader import load_document
 from agent1.chunker import chunk_text
+from agent1.rule_extractor import MigrationRuleExtractor
+from agent1.rule_store import RuleStore
+
 
 class MigrationKnowledgeAgent:
 
@@ -13,26 +17,14 @@ class MigrationKnowledgeAgent:
         self,
         vector_index: str = "vector_store/index.faiss",
         metadata_file: str = "vector_store/metadata.json",
+        rules_file: str = "vector_store/rules.json",
         top_k: int = 4,
-        similarity_threshold: float = 0.65
+        similarity_threshold: float = 0.50
     ):
 
         self.vector_index = vector_index
         self.metadata_file = metadata_file
-
-        # -----------------------------
-        # Check saved data
-        # -----------------------------
-
-        if not Path(vector_index).exists():
-            raise FileNotFoundError(
-                f"Vector index not found: {vector_index}"
-            )
-
-        if not Path(metadata_file).exists():
-            raise FileNotFoundError(
-                f"Metadata file not found: {metadata_file}"
-            )
+        self.rules_file = rules_file
 
         # -----------------------------
         # Embedding model
@@ -48,19 +40,35 @@ class MigrationKnowledgeAgent:
             dimension=384
         )
 
-        self.vector_store.load(
-            vector_index
-        )
+        if Path(vector_index).exists():
+
+            self.vector_store.load(vector_index)
 
         # -----------------------------
-        # Metadata
+        # Metadata store
         # -----------------------------
 
         self.metadata_store = MetadataStore()
 
-        self.metadata_store.load(
-            metadata_file
-        )
+        if Path(metadata_file).exists():
+
+            self.metadata_store.load(metadata_file)
+
+        # -----------------------------
+        # Rule extractor
+        # -----------------------------
+
+        self.rule_extractor = MigrationRuleExtractor()
+
+        # -----------------------------
+        # Rule store
+        # -----------------------------
+
+        self.rule_store = RuleStore()
+
+        if Path(rules_file).exists():
+
+            self.rule_store.load(rules_file)
 
         # -----------------------------
         # Retriever
@@ -74,10 +82,29 @@ class MigrationKnowledgeAgent:
             similarity_threshold=similarity_threshold
         )
 
+    # ==================================================
+    # DOCUMENT RETRIEVAL
+    # ==================================================
+
     def search(self, query: str) -> list[dict]:
 
+        if self.vector_store.size() == 0:
+            return []
+
         return self.retriever.retrieve(query)
-        
+
+    # ==================================================
+    # GET MIGRATION RULES
+    # ==================================================
+
+    def get_rules(self) -> list[dict]:
+
+        return self.rule_store.get_rules()
+
+    # ==================================================
+    # DOCUMENT INGESTION
+    # ==================================================
+
     def ingest_document(self, document_path: str):
 
         # -----------------------------
@@ -113,7 +140,7 @@ class MigrationKnowledgeAgent:
         )
 
         # -----------------------------
-        # Add to vector store
+        # Add vectors
         # -----------------------------
 
         self.vector_store.add(
@@ -129,7 +156,27 @@ class MigrationKnowledgeAgent:
         )
 
         # -----------------------------
-        # Save
+        # Extract migration rules
+        # -----------------------------
+
+        extracted_data = self.rule_extractor.extract_rules(
+            text
+        )
+
+        extracted_rules = extracted_data.get(
+            "rules", []
+        )
+
+        # -----------------------------
+        # Store migration rules
+        # -----------------------------
+
+        self.rule_store.add_rules(
+            extracted_rules
+        )
+
+        # -----------------------------
+        # Save all data
         # -----------------------------
 
         self.vector_store.save(
@@ -140,13 +187,25 @@ class MigrationKnowledgeAgent:
             self.metadata_file
         )
 
-        return len(chunks)
-        
+        self.rule_store.save(
+            self.rules_file
+        )
+
+        return {
+            "chunks_added": len(chunks),
+            "rules_added": len(extracted_rules)
+        }
+
+    # ==================================================
+    # DIRECTORY INGESTION
+    # ==================================================
+
     def ingest_directory(self, directory_path: str):
 
         directory = Path(directory_path)
 
         if not directory.exists():
+
             raise FileNotFoundError(
                 f"Directory not found: {directory_path}"
             )
@@ -165,17 +224,28 @@ class MigrationKnowledgeAgent:
         ]
 
         total_chunks = 0
+        total_rules = 0
 
         for file in files:
 
             print(f"\nIngesting: {file.name}")
 
-            count = self.ingest_document(
+            result = self.ingest_document(
                 str(file)
             )
 
-            total_chunks += count
+            total_chunks += result["chunks_added"]
+            total_rules += result["rules_added"]
 
-            print(f"Added {count} chunks.")
+            print(
+                f"Added {result['chunks_added']} chunks."
+            )
 
-        return total_chunks
+            print(
+                f"Extracted {result['rules_added']} rules."
+            )
+
+        return {
+            "total_chunks": total_chunks,
+            "total_rules": total_rules
+        }
