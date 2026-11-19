@@ -6,10 +6,7 @@ from agent1.rule_extractor import MigrationRuleExtractor
 
 def main():
 
-    document_path = (
-        "documents/migration_docs/"
-        "langchain_langgraph_migration_guide.pdf"
-    )
+    document_path = "documents/migration_docs/migration_rules.pdf"
 
     document_text = load_document(document_path)
 

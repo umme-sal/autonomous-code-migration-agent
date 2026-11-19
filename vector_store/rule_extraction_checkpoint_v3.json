@@ -1,0 +1,1117 @@
+{
+    "schema_version": 3,
+    "prompt_version": "operations-v1",
+    "fingerprint": "469428bbd400137d9639e732fb0212ce7ddd387b8b7bef515bd64c70c04ff63a",
+    "last_completed_batch": 15,
+    "rules": [
+        {
+            "rule_id": "R01",
+            "category": "import_migration",
+            "transformation_type": "relocate_import",
+            "description": "Move ChatModel import to its new module.",
+            "element_type": "import",
+            "source": "ChatModel",
+            "target": "ChatModel",
+            "source_module": "legacy_sdk.models",
+            "target_module": "modern_sdk.models",
+            "targets": [
+                {
+                    "element_type": "import",
+                    "old_name": "ChatModel",
+                    "new_name": "ChatModel",
+                    "source_module": "legacy_sdk.models",
+                    "target_module": "modern_sdk.models"
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "relocate_import",
+                    "symbol": "ChatModel",
+                    "source_module": "legacy_sdk.models",
+                    "target_module": "modern_sdk.models"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Move the ChatModel import from legacy_sdk.models to modern_sdk.models."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "from legacy_sdk.models import ChatModel",
+                "after": "from modern_sdk.models import ChatModel"
+            },
+            "source_excerpt": "Rule 1: Module relocation Before: from legacy_sdk.models import ChatModel After: from modern_sdk.models import ChatModel"
+        },
+        {
+            "rule_id": "R02",
+            "category": "import_migration",
+            "transformation_type": "relocate_import",
+            "description": "Move VectorDB and Chroma imports to their dedicated modules.",
+            "element_type": "import",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "import",
+                    "old_name": "VectorDB",
+                    "new_name": "VectorDB",
+                    "source_module": "legacy_sdk.storage",
+                    "target_module": "modern_sdk.vector"
+                },
+                {
+                    "element_type": "import",
+                    "old_name": "Chroma",
+                    "new_name": "Chroma",
+                    "source_module": "legacy_sdk.storage",
+                    "target_module": "modern_sdk.chroma"
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "relocate_import",
+                    "symbol": "VectorDB",
+                    "source_module": "legacy_sdk.storage",
+                    "target_module": "modern_sdk.vector"
+                },
+                {
+                    "operation": "relocate_import",
+                    "symbol": "Chroma",
+                    "source_module": "legacy_sdk.storage",
+                    "target_module": "modern_sdk.chroma"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace the import of VectorDB from legacy_sdk.storage with an import from modern_sdk.vector.",
+                "Replace the import of Chroma from legacy_sdk.storage with an import from modern_sdk.chroma."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "from legacy_sdk.storage import VectorDB, Chroma",
+                "after": "from modern_sdk.vector import VectorDB\nfrom modern_sdk.chroma import Chroma"
+            },
+            "source_excerpt": "Rule 2: Symbol- specific import relocation Before: from legacy_sdk.storage import VectorDB, Chroma After: from modern_sdk.vector import VectorDB from modern_sdk.chroma import Chroma"
+        },
+        {
+            "rule_id": "R03",
+            "category": "import_migration",
+            "transformation_type": "rename_imported_symbol",
+            "description": "Rename the imported symbol old_connect to connect and update its usage.",
+            "element_type": "import",
+            "source": "old_connect",
+            "target": "connect",
+            "source_module": "legacy_sdk",
+            "target_module": "modern_sdk",
+            "targets": [
+                {
+                    "element_type": "import",
+                    "old_name": "old_connect",
+                    "new_name": "connect",
+                    "source_module": "legacy_sdk",
+                    "target_module": "modern_sdk"
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_symbol",
+                    "old_name": "old_connect",
+                    "new_name": "connect",
+                    "source_module": "legacy_sdk",
+                    "target_module": "modern_sdk"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the imported symbol old_connect to connect and update its usage."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "from legacy_sdk import old_connect\nclient = old_connect(url)",
+                "after": "from modern_sdk import connect\nclient = connect(url)"
+            },
+            "source_excerpt": "Rule 3: Imported symbol renaming Before: from legacy_sdk import old_connect client = old_connect(url) After: from modern_sdk import connect client = connect(url)"
+        },
+        {
+            "rule_id": "R04",
+            "category": "import_migration",
+            "transformation_type": "manual_review_required",
+            "description": "Wildcard imports require manual review; do not automatically rewrite.",
+            "element_type": "import",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "manual_review",
+                    "reason": "Wildcard import migration lacks explicit mapping; requires manual review."
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Perform manual review for wildcard import; do not rewrite automatically."
+            ],
+            "safety_conditions": [
+                "Never guess which names a wildcard import introduces."
+            ],
+            "examples": {
+                "before": "from legacy_sdk import *",
+                "after": ""
+            },
+            "source_excerpt": "Rule 4: Wildcard import migration Before: from legacy_sdk import * Transformation: Do not rewrite without an explicit wildcard rule, report manual review. Safety: Never guess which names a wildcard import introduces."
+        },
+        {
+            "rule_id": "R05",
+            "category": "function_definition",
+            "transformation_type": "rename_function",
+            "description": "Rename function `old_client` to `build_client` and update all its call sites.",
+            "element_type": "function",
+            "source": "old_client",
+            "target": "build_client",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "function",
+                    "old_name": "old_client",
+                    "new_name": "build_client",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_function",
+                    "old_name": "old_client",
+                    "new_name": "build_client"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the function definition from `old_client` to `build_client`.",
+                "Replace all calls to `old_client` with `build_client`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "def old_client(url):\n    return connect(url)\n\nclient = old_client(API_URL)",
+                "after": "def build_client(url):\n    return connect(url)\n\nclient = build_client(API_URL)"
+            },
+            "source_excerpt": "Rule 5: Rename a function Before: def old_client(url): return connect(url) client = old_client(API_URL) After: def build_client(url): return connect(url) client = build_client(API_URL)"
+        },
+        {
+            "rule_id": "R06",
+            "category": "function_definition",
+            "transformation_type": "rename_parameter",
+            "description": "Rename the parameter `model_name` to `model` in the function `load_model` and update corresponding keyword arguments in calls.",
+            "element_type": "parameter",
+            "source": "model_name",
+            "target": "model",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "parameter",
+                    "old_name": "model_name",
+                    "new_name": "model",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_parameter",
+                    "function": "load_model",
+                    "old_parameter": "model_name",
+                    "new_parameter": "model"
+                },
+                {
+                    "operation": "rename_keyword_argument",
+                    "function": "load_model",
+                    "old_argument": "model_name",
+                    "new_argument": "model"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the parameter in the function definition from `model_name` to `model`.",
+                "Update all calls that use the keyword argument `model_name` to use `model` instead."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "def load_model(model_name):\n    return create(model_name)\n\nload_model(model_name=\"demo\")",
+                "after": "def load_model(model):\n    return create(model)\n\nload_model(model=\"demo\")"
+            },
+            "source_excerpt": "Rule 6: Rename a function parameter Before: def load_model(model_name): return create(model_name) load_model(model_name=\"demo\") After: def load_model(model): return create(model) load_model(model=\"demo\")"
+        },
+        {
+            "rule_id": "R07",
+            "category": "function_definition",
+            "transformation_type": "add_required_parameter",
+            "description": "Add required parameter 'timeout' to function request and its calls.",
+            "element_type": "function",
+            "source": "request",
+            "target": "request",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "add_parameter",
+                    "function": "request",
+                    "parameter": "timeout",
+                    "required_value": 30
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Add a new required parameter named timeout to the definition of request.",
+                "Update all calls to request to include the timeout argument with the specified value."
+            ],
+            "safety_conditions": [
+                "Never invent a required parameter value; use the value explicitly provided in the migration guide.",
+                "If no value is provided for the new required parameter, flag the migration for manual review."
+            ],
+            "examples": {
+                "before": "def request(url): return send(url)\nrequest(API_URL)",
+                "after": "def request(url, timeout): return send(url, timeout=timeout)\nrequest(API_URL, timeout=30)"
+            },
+            "source_excerpt": "Rule 7: Add a required parameter Before: def request(url): return send(url) request(API_URL) After: def request(url, timeout): return send(url, timeout=timeout) request(API_URL, timeout=30) Safety conditions: The migration guide must explicitly specify the value of the newly required parameter. The agent must not invent a default value. If no value is provided, the migration must be flagged for manual review."
+        },
+        {
+            "rule_id": "R08",
+            "category": "function_definition",
+            "transformation_type": "remove_deprecated_parameter",
+            "description": "Remove deprecated parameter 'legacy_mode' from function open_file and its calls.",
+            "element_type": "function",
+            "source": "open_file",
+            "target": "open_file",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "remove_parameter",
+                    "function": "open_file",
+                    "parameter": "legacy_mode"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Remove the legacy_mode parameter from the definition of open_file.",
+                "Delete any legacy_mode arguments from calls to open_file."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "def open_file(path, legacy_mode=False): return read(path)\nopen_file(\"data.txt\", legacy_mode=True)",
+                "after": "def open_file(path): return read(path)\nopen_file(\"data.txt\")"
+            },
+            "source_excerpt": "Rule 8: Remove a deprecated parameter Before: def open_file(path, legacy_mode=False): return read(path) open_file(\"data.txt\", legacy_mode=True) After: def open_file(path): return read(path) open_file(\"data.txt\")"
+        },
+        {
+            "rule_id": "R09",
+            "category": "function_definition",
+            "transformation_type": "reorder_parameters",
+            "description": "Reorder the parameters of a function definition.",
+            "element_type": "function",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "reorder_parameters",
+                    "function": "start",
+                    "old_order": [
+                        "client",
+                        "config"
+                    ],
+                    "new_order": [
+                        "config",
+                        "client"
+                    ]
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Change the order of parameters in the definition of `start` from (client, config) to (config, client).",
+                "Update all calls to `start` to match the new parameter order."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "def start(client, config): pass\nstart(client_obj, config_obj)",
+                "after": "def start(config, client): pass\nstart(config_obj, client_obj)"
+            },
+            "source_excerpt": "Rule 9: Reorder function parameters Before: def start(client, config): pass start(client_obj, config_obj) After: def start(config, client): pass start(config_obj, client_obj)"
+        },
+        {
+            "rule_id": "R10",
+            "category": "function_definition",
+            "transformation_type": "change_default_value",
+            "description": "Change the default value of a function parameter.",
+            "element_type": "function",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "change_default_value",
+                    "function": "create_model",
+                    "parameter": "temperature",
+                    "old_value": 0.7,
+                    "new_value": 0
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Update the default value of the `temperature` parameter in `create_model` from 0.7 to 0."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "def create_model(temperature=0.7): pass",
+                "after": "def create_model(temperature=0): pass"
+            },
+            "source_excerpt": "Rule 10: Change default parameter value Before: def create_model(temperature=0.7): pass After: def create_model(temperature=0): pass 3. Function Call Migration"
+        },
+        {
+            "rule_id": "R11",
+            "category": "function_call",
+            "transformation_type": "rename_keyword_argument",
+            "description": "Rename the keyword argument `model_name` to `model` in calls to `create_model`.",
+            "element_type": "",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "rename_keyword_argument",
+                    "function": "create_model",
+                    "old_name": "model_name",
+                    "new_name": "model"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace the keyword argument `model_name` with `model` in all `create_model` calls."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "create_model(model_name=\"small\")",
+                "after": "create_model(model=\"small\")"
+            },
+            "source_excerpt": "Rule 11: Rename keyword arguments Before: create_model(model_name=\"small\") After: create_model(model=\"small\")"
+        },
+        {
+            "rule_id": "R12",
+            "category": "function_call",
+            "transformation_type": "positional_to_keyword_argument",
+            "description": "Convert the positional argument of `client.invoke` to a keyword argument named `input`.",
+            "element_type": "",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "positional_to_keyword",
+                    "function": "client.invoke",
+                    "old_position": 0,
+                    "old_argument": "prompt",
+                    "new_keyword": "input"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Change calls like `client.invoke(prompt)` to `client.invoke(input=prompt)`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "response = client.invoke(prompt)",
+                "after": "response = client.invoke(input=prompt)"
+            },
+            "source_excerpt": "Rule 12: Convert positional argument to keyword argument Before: response = client.invoke(prompt) After: response = client.invoke(input=prompt)"
+        },
+        {
+            "rule_id": "R13",
+            "category": "method_migration",
+            "transformation_type": "add_keyword_argument",
+            "description": "Add the keyword argument `stream=True` to calls of `client.generate`.",
+            "element_type": "method",
+            "source": "client.generate",
+            "target": "client.generate",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "add_keyword_argument",
+                    "method": "client.generate",
+                    "argument": "stream",
+                    "value": true
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Add the keyword argument `stream=True` to every call of `client.generate`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "client.generate(prompt)",
+                "after": "client.generate(prompt, stream=True)"
+            },
+            "source_excerpt": "Rule 13: Add a keyword argument Before: client.generate(prompt) After: client.generate(prompt, stream=True)"
+        },
+        {
+            "rule_id": "R14",
+            "category": "method_migration",
+            "transformation_type": "replace_argument_value",
+            "description": "Replace the value of `response_format` from \"text\" to \"json\" in calls of `client.generate`.",
+            "element_type": "method",
+            "source": "client.generate",
+            "target": "client.generate",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "replace_argument_value",
+                    "method": "client.generate",
+                    "argument": "response_format",
+                    "old_value": "text",
+                    "new_value": "json"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Change the `response_format` argument value from \"text\" to \"json\" in every call of `client.generate`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "client.generate( prompt, response_format=\"text\" )",
+                "after": "client.generate( prompt, response_format=\"json\" )"
+            },
+            "source_excerpt": "Rule 14: Replace argument values Before: client.generate( prompt, response_format=\"text\" ) After: client.generate( prompt, response_format=\"json\" )"
+        },
+        {
+            "rule_id": "R15",
+            "category": "method_migration",
+            "transformation_type": "rename_method",
+            "description": "Rename the method `run` to `invoke`.",
+            "element_type": "method",
+            "source": "run",
+            "target": "invoke",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "method",
+                    "old_name": "run",
+                    "new_name": "invoke",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_method",
+                    "old_value": "run",
+                    "new_value": "invoke"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the method run to invoke."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "response = client.run(prompt)",
+                "after": "response = client.invoke(prompt)"
+            },
+            "source_excerpt": "Rule 15: Rename a method Before: response = client.run(prompt) After: response = client.invoke(prompt)"
+        },
+        {
+            "rule_id": "R16",
+            "category": "method_migration",
+            "transformation_type": "replace_method",
+            "description": "Replace the method `predict` with `invoke` and adjust arguments: wrap `prompt` in an `input` dictionary and move `temperature` into a `config` dictionary.",
+            "element_type": "method",
+            "source": "predict",
+            "target": "invoke",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "method",
+                    "old_name": "predict",
+                    "new_name": "invoke",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_method",
+                    "old_value": "predict",
+                    "new_value": "invoke"
+                },
+                {
+                    "operation": "wrap_argument",
+                    "argument": "prompt",
+                    "wrapper": "input"
+                },
+                {
+                    "operation": "move_argument",
+                    "argument": "temperature",
+                    "destination": "config"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the method predict to invoke.",
+                "Wrap the prompt argument in an input dictionary.",
+                "Move the temperature argument into the config dictionary."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "result = client.predict( prompt, temperature=0.5 )",
+                "after": "result = client.invoke( {\"input\": prompt}, config={\"temperature\": 0.5})"
+            },
+            "source_excerpt": "Rule 16: Replace a method with another method and change arguments Before: result = client.predict( prompt, temperature=0.5 ) After: result = client.invoke( {\"input\": prompt}, config={\"temperature\": 0.5})"
+        },
+        {
+            "rule_id": "R17",
+            "category": "method_migration",
+            "transformation_type": "rename_method",
+            "description": "Replace the chained method call .run with .invoke on prompt_template objects.",
+            "element_type": "method",
+            "source": "run",
+            "target": "invoke",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "method",
+                    "old_name": "run",
+                    "new_name": "invoke",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_method",
+                    "old_value": "run",
+                    "new_value": "invoke"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the method run to invoke in the chained call."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "result = ( prompt_template .format(question) .run(model) )",
+                "after": "result = ( prompt_template .format(question) .invoke(model) )"
+            },
+            "source_excerpt": "Rule 17: Replace a chained method call Before: result = ( prompt_template .format(question) .run(model) ) After: result = ( prompt_template .format(question) .invoke(model) )"
+        },
+        {
+            "rule_id": "R18",
+            "category": "async_migration",
+            "transformation_type": "convert_to_async",
+            "description": "Convert a synchronous function to an asynchronous one and await the client call.",
+            "element_type": "function",
+            "source": "fetch_data",
+            "target": "fetch_data",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "convert_to_async",
+                    "function": "fetch_data"
+                },
+                {
+                    "operation": "add_await",
+                    "call": "client.get(url)"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Make fetch_data an async function.",
+                "Prepend await to the client.get call inside fetch_data."
+            ],
+            "safety_conditions": [
+                "Do not add await inside a synchronous function."
+            ],
+            "examples": {
+                "before": "def fetch_data(client): return client.get(url)",
+                "after": "async def fetch_data(client): return await client.get(url)"
+            },
+            "source_excerpt": "Rule 18: Convert synchronous method to asynchronous method Before: def fetch_data(client): return client.get(url) After: async def fetch_data(client): return await client.get(url)"
+        },
+        {
+            "rule_id": "R19",
+            "category": "async_migration",
+            "transformation_type": "propagate_async",
+            "description": "Propagate async conversion of a function to all its callers, converting them to async and adding await where needed.",
+            "element_type": "function",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "convert_to_async",
+                    "detail": "Convert each direct or indirect caller of the migrated function from def to async def."
+                },
+                {
+                    "operation": "add_await",
+                    "detail": "Add await before calls to the newly async function within the converted callers."
+                },
+                {
+                    "operation": "propagate_async",
+                    "detail": "Repeat conversion and await insertion recursively until no further callers require changes."
+                },
+                {
+                    "operation": "manual_review",
+                    "reason": "If a synchronous entry point or boundary cannot safely be converted, report for manual review."
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Identify all direct callers of the migrated async function and convert them to async def.",
+                "Identify indirect callers (functions that call other functions that eventually call the migrated function) and convert them to async def.",
+                "Add await to each call of the async function within the converted callers.",
+                "Continue propagation until all affected callers are handled.",
+                "If a synchronous boundary (e.g., script entry point, framework callback) cannot be safely converted, do not migrate automatically and report for manual review."
+            ],
+            "safety_conditions": [
+                "Do not add await to a normal synchronous function.",
+                "Do not convert unrelated functions to asynchronous functions.",
+                "Do not assume that every caller can be converted.",
+                "Do not automatically introduce asyncio.run() unless the migration rule explicitly permits it and the execution context is safe.",
+                "If the entire caller chain cannot be resolved, report incomplete migration."
+            ],
+            "examples": {
+                "before": "def fetch_data(client):\n    return client.get(url)\n\ndef process_data(client):\n    data = fetch_data(client)\n    return data",
+                "after": "async def fetch_data(client):\n    return await client.get(url)\n\nasync def process_data(client):\n    data = await fetch_data(client)\n    return data"
+            },
+            "source_excerpt": "Rule 19: Propagate async changes to callers Before: def fetch_data(client): return client.get(url) def process_data(client): data = fetch_data(client) return data After: async def fetch_data(client): return await client.get(url) async def process_data(client): data = await fetch_data(client) return data Additional transformation requirements 1. Identify all direct callers of the migrated asynchronous function. 2. Identify indirect callers (functions that call other functions that eventually call the migrated function). 3. Convert affected synchronous functions to async def where necessary. 4. Add await to calls of asynchronous functions. 5. Continue propagation until all affected callers are handled. 6. Check whether the call chain reaches synchronous entry points, such as: ○ Normal script entry points. ○ Synchronous framework callbacks. ○ Functions that cannot legally use await . 7. If an affected synchronous boundary cannot safely be converted, do not automatically migrate that part. Report it for manual review. 8. Preserve unrelated functions and call sites."
+        },
+        {
+            "rule_id": "R20",
+            "category": "iteration_migration",
+            "transformation_type": "replace_sync_iteration",
+            "description": "Replace a synchronous for‑loop with an asynchronous for‑loop when iterating over an async iterator.",
+            "element_type": "loop",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "replace_for_with_async_for",
+                    "detail": "Change `for item in response:` to `async for item in response:`."
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Ensure the containing function is declared with async def.",
+                "Replace the synchronous for‑loop with an async for‑loop."
+            ],
+            "safety_conditions": [
+                "The response object must implement the asynchronous iterator protocol.",
+                "The containing function must be declared using async def."
+            ],
+            "examples": {
+                "before": "for item in response:\n    process(item)",
+                "after": "async for item in response:\n    process(item)"
+            },
+            "source_excerpt": "Rule 20: Replace synchronous iteration with asynchronous iteration Before: for item in response: process(item) After: async for item in response: process(item) Safety conditions: ● The response object must implement the asynchronous iterator protocol. ● The containing function must be declared using async def ."
+        },
+        {
+            "rule_id": "R21",
+            "category": "class_migration",
+            "transformation_type": "rename_class",
+            "description": "Rename class OldClient to ApiClient.",
+            "element_type": "class",
+            "source": "OldClient",
+            "target": "ApiClient",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "class",
+                    "old_name": "OldClient",
+                    "new_name": "ApiClient",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_class",
+                    "old_value": "OldClient",
+                    "new_value": "ApiClient"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Rename the class OldClient to ApiClient."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "class OldClient:\n    pass\nclient = OldClient()",
+                "after": "class ApiClient:\n    pass\nclient = ApiClient()"
+            },
+            "source_excerpt": "Rule 21: Rename a class Before: class OldClient: pass client = OldClient() After: class ApiClient: pass client = ApiClient()"
+        },
+        {
+            "rule_id": "R22",
+            "category": "class_migration",
+            "transformation_type": "change_base_class",
+            "description": "Change the base class of Worker from LegacyBase to ModernBase.",
+            "element_type": "class",
+            "source": "LegacyBase",
+            "target": "ModernBase",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "class",
+                    "old_name": "LegacyBase",
+                    "new_name": "ModernBase",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "change_base_class",
+                    "class": "Worker",
+                    "old_base": "LegacyBase",
+                    "new_base": "ModernBase"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace the base class LegacyBase with ModernBase in the definition of Worker."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "class Worker(LegacyBase):\n    pass",
+                "after": "class Worker(ModernBase):\n    pass"
+            },
+            "source_excerpt": "Rule 22: Change a base class Before: class Worker(LegacyBase): pass After: class Worker(ModernBase): pass"
+        },
+        {
+            "rule_id": "R23",
+            "category": "decorator_migration",
+            "transformation_type": "replace_decorator",
+            "description": "Replace the legacy_cache decorator with cache while preserving arguments.",
+            "element_type": "decorator",
+            "source": "legacy_cache",
+            "target": "cache",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "decorator",
+                    "old_name": "legacy_cache",
+                    "new_name": "cache",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "replace_decorator",
+                    "old_decorator": "legacy_cache",
+                    "new_decorator": "cache"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace @legacy_cache with @cache, keeping the same arguments (e.g., ttl=60)."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "@legacy_cache(ttl=60)\ndef load_data():\n    pass",
+                "after": "@cache(ttl=60)\ndef load_data():\n    pass"
+            },
+            "source_excerpt": "Rule 23: Replace a decorator Before: @legacy_cache(ttl=60) def load_data(): pass After: @cache(ttl=60) def load_data(): pass"
+        },
+        {
+            "rule_id": "R24",
+            "category": "constructor_migration",
+            "transformation_type": "replace_constructor",
+            "description": "Replace LegacyClient construction with ModernClient and rename its parameters.",
+            "element_type": "class",
+            "source": "LegacyClient",
+            "target": "ModernClient",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "class",
+                    "old_name": "LegacyClient",
+                    "new_name": "ModernClient",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "replace_constructor",
+                    "old_class": "LegacyClient",
+                    "new_class": "ModernClient"
+                },
+                {
+                    "operation": "rename_parameter",
+                    "old_parameter": "api_key",
+                    "new_parameter": "credentials"
+                },
+                {
+                    "operation": "rename_parameter",
+                    "old_parameter": "endpoint",
+                    "new_parameter": "base_url"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace LegacyClient with ModernClient when creating a client instance.",
+                "Rename the api_key argument to credentials.",
+                "Rename the endpoint argument to base_url."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "client = LegacyClient( api_key=key, endpoint=url )",
+                "after": "client = ModernClient( credentials=key, base_url=url )"
+            },
+            "source_excerpt": "Rule 24: Replace object initialization Before: client = LegacyClient( api_key=key, endpoint=url ) After: client = ModernClient( credentials=key, base_url=url ) 7. Type Annotation Migration"
+        },
+        {
+            "rule_id": "R25",
+            "category": "type_annotation",
+            "transformation_type": "change_return_type",
+            "description": "Change the return type of `fetch_data` from `LegacyResponse` to `ModernResponse`.",
+            "element_type": "",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "change_return_type",
+                    "function": "fetch_data",
+                    "old_type": "LegacyResponse",
+                    "new_type": "ModernResponse"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Update the return type annotation of `fetch_data` to `ModernResponse`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "def fetch_data() -> LegacyResponse: pass",
+                "after": "def fetch_data() -> ModernResponse: pass"
+            },
+            "source_excerpt": "Rule 25: Change return type Before: def fetch_data() -> LegacyResponse: pass After: def fetch_data() -> ModernResponse: pass"
+        },
+        {
+            "rule_id": "R26",
+            "category": "configuration_migration",
+            "transformation_type": "rename_configuration_key",
+            "description": "Rename configuration key `api_base` to `base_url` while preserving other keys.",
+            "element_type": "",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [
+                {
+                    "element_type": "configuration_key",
+                    "old_name": "api_base",
+                    "new_name": "base_url",
+                    "source_module": "",
+                    "target_module": ""
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_configuration_key",
+                    "old_key": "api_base",
+                    "new_key": "base_url"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace the key `api_base` with `base_url` in configuration dictionaries."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "config = { \"api_base\": \"https:// example.com\", \"timeout\": 30 }",
+                "after": "config = { \"base_url\": \"https:// example.com\", \"timeout\": 30 }"
+            },
+            "source_excerpt": "Rule 26: Rename configuration keys Before: config = { \"api_base\": \"https:// example.com\", \"timeout\": 30 } After: config = { \"base_url\": \"https:// example.com\", \"timeout\": 30 }"
+        },
+        {
+            "rule_id": "R27",
+            "category": "configuration_migration",
+            "transformation_type": "restructure_configuration",
+            "description": "Restructure client construction to pass retries and timeout inside an `options` dictionary while preserving other arguments.",
+            "element_type": "constructor",
+            "source": "Client(retries=..., timeout=..., ...)",
+            "target": "Client(options={...}, ...)",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "restructure_configuration",
+                    "old_parameters": [
+                        "retries",
+                        "timeout"
+                    ],
+                    "new_parameter": "options",
+                    "mapping": {
+                        "retries": "retries",
+                        "timeout": "timeout"
+                    }
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Move the `retries` and `timeout` arguments into an `options` dictionary argument.",
+                "If an `options` dictionary already exists, merge the new keys without overwriting existing values."
+            ],
+            "safety_conditions": [
+                "If an `options` dictionary already exists, merge the migrated options without overwriting existing values.",
+                "If duplicate keys or conflicting values are detected, report manual review instead of guessing."
+            ],
+            "examples": {
+                "before": "client = Client( retries=3, timeout=30, region=\"west\" )",
+                "after": "client = Client( options={ \"retries\": 3, \"timeout\": 30 }, region=\"west\" )"
+            },
+            "source_excerpt": "Rule 27: Restructure configuration Before: client = Client( retries=3, timeout=30, region=\"west\" ) After: client = Client( options={ \"retries\": 3, \"timeout\": 30 }, region=\"west\" ) Safety conditions: If an options dictionary already exists, merge the migrated options without overwriting existing values. If duplicate keys or conflicting values are detected, report manual review instead of guessing."
+        },
+        {
+            "rule_id": "R28",
+            "category": "enum_migration",
+            "transformation_type": "replace_constant_with_enum",
+            "description": "Replace the string constant passed to `mode` with the corresponding `ExecutionMode` enum member.",
+            "element_type": "function_call",
+            "source": "mode=\"fast\"",
+            "target": "mode=ExecutionMode.FAST",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "replace_argument_value",
+                    "function": "client.execute",
+                    "argument": "mode",
+                    "old_value": "fast",
+                    "new_value": "ExecutionMode.FAST"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace the string \"fast\" passed to the `mode` argument with the enum member `ExecutionMode.FAST`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "client.execute(mode=\"fast\")",
+                "after": "client.execute(mode=ExecutionMode.FAST)"
+            },
+            "source_excerpt": "Rule 28: Replace a string constant with an enum Before: client.execute(mode=\"fast\") After: client.execute(mode=ExecutionMode.FAST)"
+        },
+        {
+            "rule_id": "R29",
+            "category": "exception_migration",
+            "transformation_type": "rename_exception_class",
+            "description": "Replace LegacyError with ClientError and update import source.",
+            "element_type": "import",
+            "source": "LegacyError",
+            "target": "ClientError",
+            "source_module": "legacy_sdk",
+            "target_module": "modern_sdk",
+            "targets": [
+                {
+                    "element_type": "import",
+                    "old_name": "LegacyError",
+                    "new_name": "ClientError",
+                    "source_module": "legacy_sdk",
+                    "target_module": "modern_sdk"
+                }
+            ],
+            "operations": [
+                {
+                    "operation": "rename_symbol",
+                    "old_name": "LegacyError",
+                    "new_name": "ClientError",
+                    "source_module": "legacy_sdk",
+                    "target_module": "modern_sdk"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Change import to `from modern_sdk import ClientError`.",
+                "Replace catches of `LegacyError` with `ClientError`."
+            ],
+            "safety_conditions": [],
+            "examples": {
+                "before": "from legacy_sdk import LegacyError\ntry:\n    client.execute()\nexcept LegacyError:\n    print(\"Failed\")",
+                "after": "from modern_sdk import ClientError\ntry:\n    client.execute()\nexcept ClientError:\n    print(\"Failed\")"
+            },
+            "source_excerpt": "Rule 29: Rename exception class Before: from legacy_sdk import LegacyError try: client.execute() except LegacyError: print(\"Failed\") After: from modern_sdk import ClientError try: client.execute() except ClientError: print(\"Failed\")"
+        },
+        {
+            "rule_id": "R30",
+            "category": "exception_migration",
+            "transformation_type": "modify_exception_handling_structure",
+            "description": "Update exception handling to capture the error, log it, and re‑raise.",
+            "element_type": "",
+            "source": "",
+            "target": "",
+            "source_module": "",
+            "target_module": "",
+            "targets": [],
+            "operations": [
+                {
+                    "operation": "modify_exception_handling",
+                    "old_structure": "except LegacyError: print(\"Error\")",
+                    "new_structure": "except ClientError as error: logger.exception(\"Execution failed\") raise"
+                }
+            ],
+            "preconditions": [],
+            "required_changes": [
+                "Replace `except LegacyError:` with `except ClientError as error:`.",
+                "Add `logger.exception(\"Execution failed\")` inside the except block.",
+                "Re‑raise the exception after logging."
+            ],
+            "safety_conditions": [
+                "The migration agent must verify that the logger is available or that the migration rule explicitly authorizes adding the required logger configuration.",
+                "Changing the exception‑handling behavior is only allowed because the rule explicitly requires it."
+            ],
+            "examples": {
+                "before": "try:\n    client.execute()\nexcept LegacyError:\n    print(\"Error\")",
+                "after": "try:\n    client.execute()\nexcept ClientError as error:\n    logger.exception(\"Execution failed\")\n    raise"
+            },
+            "source_excerpt": "Rule 30: Change exception handling structure Before: try: client.execute() except LegacyError: print(\"Error\") After: try: client.execute() except ClientError as error: logger.exception(\"Execution failed\") raise Safety conditions: The migration agent must verify that the logger is available or that the migration rule explicitly authorizes adding the required logger configuration. It must also verify that changing the exception- handling behavior is explicitly required."
+        }
+    ]
+}
